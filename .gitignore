@@ -1,0 +1,12 @@
+# Backend (Spring Boot)
+/target/
+/.gradle/
+/.idea/
+/.vscode/
+*.iml
+
+# Frontend (Next.js)
+/node_modules/
+/.next/
+/out/
+.env
