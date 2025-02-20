@@ -1,7 +1,7 @@
-package com.example.demo.controller;
+package com.felix.ecommerceapp.controller;
 
-import com.example.demo.model.Product;
-import com.example.demo.repository.ProductRepository;
+import com.felix.ecommerceapp.model.Product;
+import com.felix.ecommerceapp.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,14 +25,13 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public Product getProductById(@PathVariable Long id){
-        return productRepository.findById(id)
-            .orElseThrow(()->new RuntimeException("Product not found"));
+        return productRepository.findById(id).orElseThrow(()-> new RuntimeException("Product not found"));
     }
 
     @PutMapping("/{id}")
-    public Product updateProduct(@PathVariable Long id, @RequestBody Product updatedProduct){
+    public Product updateProduct(@PathVariable Long id, @RequestBody Product updatedProduct) {
         Product product = productRepository.findById(id)
-            .orElseThrow(()-> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new RuntimeException("Product not found"));
         product.setName(updatedProduct.getName());
         product.setPrice(updatedProduct.getPrice());
         product.setDescription(updatedProduct.getDescription());
@@ -40,7 +39,12 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable Long id){
+    public void deleteProduct(@PathVariable Long id) {
         productRepository.deleteById(id);
+    } 
+
+    @PostMapping("/bulk")
+    public List<Product> addProducts(@RequestBody List<Product> products) {
+        return productRepository.saveAll(products);
     }
 }
