@@ -24,8 +24,7 @@ public class JwtUtil {
     }
 
     public String generateToken(User user) {
-
-        System.out.println("🔍 Role saat generate token: " + user.getRole());
+        System.out.println("Generating token for user: " + user); // Debugging
         return Jwts.builder()
                 .subject(user.getUsername())
                 .claim("roles", List.of("ROLE_" + user.getRole())) // Simpan dalam array
