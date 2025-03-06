@@ -8,13 +8,16 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class Product {
     @Id
     @GeneratedValue
     private Long id;
 
+    @NonNull
     private String name;
+    @NonNull
     private String description;
+    @NonNull
     private Double price;
 }

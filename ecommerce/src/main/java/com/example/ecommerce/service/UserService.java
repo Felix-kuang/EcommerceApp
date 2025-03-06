@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.ecommerce.dto.AuthRequestDTO;
+import com.example.ecommerce.dto.UserResponseDTO;
 import com.example.ecommerce.model.Role;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.repository.UserRepository;
@@ -18,17 +20,24 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public User registerUser(String username, String email, String password, Role role){
-        User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setRole(role);
+    public UserResponseDTO registerUser(AuthRequestDTO request) {
+        Role role = request.getRole() != null ? request.getRole() : Role.USER;
 
-        return userRepository.save(user);
+        User user = new User(
+                request.getUsername(),
+                request.getEmail(),
+                passwordEncoder.encode(request.getPassword()),
+                role);
+
+        user = userRepository.save(user);
+
+        return new UserResponseDTO(
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole().name());
     }
 
-    public Optional<User> findByUsername(String username){
+    public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 }

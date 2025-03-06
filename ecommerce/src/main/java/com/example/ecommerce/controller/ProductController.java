@@ -1,7 +1,11 @@
 package com.example.ecommerce.controller;
 
+import com.example.ecommerce.dto.CreateProductDTO;
+import com.example.ecommerce.dto.UpdateProductDTO;
 import com.example.ecommerce.model.Product;
 import com.example.ecommerce.service.ProductService;
+
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +26,6 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
         Optional<Product> product = productService.getProductById(id);
@@ -31,15 +34,16 @@ public class ProductController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public Product createProduct(@RequestBody Product product) {
-        return productService.createProduct(product);
+    public Product createProduct(@RequestBody @Valid CreateProductDTO createProductDTO) {
+        return productService.createProduct(createProductDTO);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product productDetails) {
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id,
+            @RequestBody @Valid UpdateProductDTO updateProductDTO) {
         try {
-            return ResponseEntity.ok(productService.updateProduct(id, productDetails));
+            return ResponseEntity.ok(productService.updateProduct(id, updateProductDTO));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

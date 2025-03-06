@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.ecommerce.dto.CreateProductDTO;
+import com.example.ecommerce.dto.UpdateProductDTO;
 import com.example.ecommerce.model.Product;
 import com.example.ecommerce.repository.ProductRepository;
 
@@ -22,11 +24,13 @@ public class ProductService {
         return productRepository.findById(id);
     }
 
-    public Product createProduct(Product product) {
+    public Product createProduct(CreateProductDTO createProductDTO) {
+        Product product = new Product(createProductDTO.getName(), createProductDTO.getDescription(),
+                createProductDTO.getPrice());
         return productRepository.save(product);
     }
 
-    public Product updateProduct(Long id, Product productDetails) {
+    public Product updateProduct(Long id, UpdateProductDTO productDetails) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 

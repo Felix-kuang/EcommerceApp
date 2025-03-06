@@ -33,20 +33,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid AuthRequestDTO request) {
-        Role role = request.getRole() != null ? request.getRole() : Role.USER;
-
-        User user = userService.registerUser(
-                request.getUsername(),
-                request.getEmail(),
-                request.getPassword(),
-                role);
-
-        UserResponseDTO response = new UserResponseDTO(
-                user.getUsername(),
-                user.getEmail(),
-                user.getRole().name());
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userService.registerUser(request));
     }
 
     @PostMapping("/login")
