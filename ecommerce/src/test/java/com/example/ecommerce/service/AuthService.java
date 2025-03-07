@@ -58,6 +58,6 @@ public class AuthService {
             );
         }
 
-        return null;
+        return jwtUtil.generateToken(user);
     }
 }
