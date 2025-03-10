@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.example.ecommerce.dto.AuthRequestDTO;
 import com.example.ecommerce.dto.LoginRequestDTO;
 import com.example.ecommerce.dto.UserResponseDTO;
+import com.example.ecommerce.exception.UserNotFoundException;
 import com.example.ecommerce.model.Role;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.security.JwtUtil;
@@ -39,7 +40,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequestDTO request) {
         User user = userService.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException());
 
         // password check
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {

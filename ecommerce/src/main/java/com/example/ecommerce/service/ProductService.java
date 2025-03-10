@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.ecommerce.dto.CreateProductDTO;
 import com.example.ecommerce.dto.UpdateProductDTO;
+import com.example.ecommerce.exception.ProductNotFoundException;
 import com.example.ecommerce.model.Product;
 import com.example.ecommerce.repository.ProductRepository;
 
@@ -32,7 +33,7 @@ public class ProductService {
 
     public Product updateProduct(Long id, UpdateProductDTO productDetails) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                .orElseThrow(() -> new ProductNotFoundException(id));
 
         product.setName(productDetails.getName());
         product.setDescription(productDetails.getDescription());

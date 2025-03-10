@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.ecommerce.dto.CartDTO;
 import com.example.ecommerce.dto.CartItemDTO;
+import com.example.ecommerce.exception.*;
 import com.example.ecommerce.model.Cart;
 import com.example.ecommerce.model.CartItem;
 import com.example.ecommerce.model.Product;
@@ -49,7 +50,7 @@ public class CartService {
 
     public CartDTO getCartForUser(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not Found"));
+                .orElseThrow(() -> new UserNotFoundException());
         Cart cart = cartRepository.findByUser(user)
                 .orElseGet(() -> {
                     Cart newCart = new Cart();
@@ -61,7 +62,7 @@ public class CartService {
 
     public CartDTO addToCart(String username, Long productId, int quantity) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException());
 
         if (quantity <= 0) {
             throw new IllegalArgumentException("Quantity must be greater than zero.");
@@ -74,7 +75,7 @@ public class CartService {
                     return cartRepository.save(newCart);
                 });
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
+                .orElseThrow(() -> new ProductNotFoundException(productId));
 
         Optional<CartItem> existingItem = cart.getItems().stream()
                 .filter(item -> item.getProduct().equals(product))
@@ -95,17 +96,17 @@ public class CartService {
 
     public void updateCartItem(String username, Long productId, int quantity) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException());
 
         if (quantity < 0) {
             throw new IllegalArgumentException("Quantity must be greater than zero.");
         }
 
         Cart cart = cartRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+                .orElseThrow(() -> new CartNotFoundException());
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
+                .orElseThrow(() -> new ProductNotFoundException(productId));
 
         Optional<CartItem> existingItem = cart.getItems().stream()
                 .filter(item -> item.getProduct().equals(product))
@@ -118,7 +119,7 @@ public class CartService {
                 existingItem.get().setQuantity(quantity);
             }
         } else {
-            throw new RuntimeException("Product not found in cart");
+            throw new ProductNotInCartException(productId, cart.getId());
         }
 
         cartRepository.save(cart);
@@ -126,13 +127,13 @@ public class CartService {
 
     public void removeFromCart(String username, Long productId) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException());
 
         Cart cart = cartRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+                .orElseThrow(() -> new CartNotFoundException());
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
+                .orElseThrow(() -> new ProductNotFoundException(productId));
 
         Optional<CartItem> existingItem = cart.getItems().stream()
                 .filter(item -> item.getProduct().equals(product))
@@ -142,7 +143,7 @@ public class CartService {
             cart.getItems().remove(existingItem.get());
             cartRepository.save(cart);
         } else {
-            throw new RuntimeException("Product not found in cart");
+            throw new ProductNotInCartException(productId, cart.getId());
         }
     }
 }

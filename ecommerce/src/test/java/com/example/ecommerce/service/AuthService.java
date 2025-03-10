@@ -7,6 +7,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.ecommerce.exception.InvalidPasswordException;
+import com.example.ecommerce.exception.UserNotFoundException;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.repository.UserRepository;
 import com.example.ecommerce.security.JwtUtil;
@@ -41,14 +43,14 @@ public class AuthService {
         // Cek apakah user ada
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isEmpty()) {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException();
         }
 
         User user = optionalUser.get();
 
         // Cek password match atau tidak
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+            throw new InvalidPasswordException();
         }
 
         // Cek apakah authenticationManager ada sebelum dipakai

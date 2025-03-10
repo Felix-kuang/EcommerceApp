@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 
 import com.example.ecommerce.dto.OrderDTO;
 import com.example.ecommerce.dto.OrderItemDTO;
+import com.example.ecommerce.exception.CartEmptyException;
+import com.example.ecommerce.exception.CartNotFoundException;
+import com.example.ecommerce.exception.UserNotFoundException;
 import com.example.ecommerce.model.Cart;
 import com.example.ecommerce.model.Order;
 import com.example.ecommerce.model.OrderItem;
@@ -31,11 +34,11 @@ public class OrderService {
     private UserRepository userRepository;
 
     public OrderDTO checkout(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not Found"));
-        Cart cart = cartRepository.findByUser(user).orElseThrow(() -> new RuntimeException("Cart not Found or Empty"));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException());
+        Cart cart = cartRepository.findByUser(user).orElseThrow(() -> new CartNotFoundException());
 
         if (cart.getItems() == null || cart.getItems().isEmpty()) {
-            throw new RuntimeException("Cart is empty");
+            throw new CartEmptyException();
         }
 
         Order order = new Order();
