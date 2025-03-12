@@ -94,7 +94,7 @@ class AuthServiceTest {
             authService.login("unknown", "password123");
         });
 
-        assertEquals("User not found", exception.getMessage());
+        assertEquals("User not Found", exception.getMessage());
         verify(userRepository, times(1)).findByUsername("unknown");
     }
 }

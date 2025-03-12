@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.ecommerce.dto.CartDTO;
-import com.example.ecommerce.dto.CartItemDTO;
+import com.example.ecommerce.dto.CartItemsDTO;
 import com.example.ecommerce.exception.*;
 import com.example.ecommerce.model.Cart;
 import com.example.ecommerce.model.CartItem;
@@ -29,8 +29,8 @@ public class CartService {
     private UserRepository userRepository;
 
     private CartDTO convertToDTO(Cart cart) {
-        List<CartItemDTO> itemDTOs = cart.getItems().stream().map(item -> {
-            CartItemDTO dto = new CartItemDTO();
+        List<CartItemsDTO> itemDTOs = cart.getItems().stream().map(item -> {
+            CartItemsDTO dto = new CartItemsDTO();
             dto.setProductId(item.getProduct().getId());
             dto.setQuantity(item.getQuantity());
             dto.setProductName(item.getProduct().getName());
@@ -38,12 +38,13 @@ public class CartService {
             return dto;
         }).toList();
 
-        double totalPrice = itemDTOs.stream().mapToDouble(CartItemDTO::getPrice).sum();
+        double totalPrice = itemDTOs.stream().mapToDouble(CartItemsDTO::getPrice).sum();
 
         CartDTO cartDTO = new CartDTO();
         cartDTO.setCartId(cart.getId());
         cartDTO.setItems(itemDTOs);
         cartDTO.setTotalPrice(totalPrice);
+        cartDTO.setUserName(cart.getUser().getUsername());
 
         return cartDTO;
     }
@@ -132,11 +133,8 @@ public class CartService {
         Cart cart = cartRepository.findByUser(user)
                 .orElseThrow(() -> new CartNotFoundException());
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(productId));
-
         Optional<CartItem> existingItem = cart.getItems().stream()
-                .filter(item -> item.getProduct().equals(product))
+                .filter(item -> item.getProduct().getId().equals(productId))
                 .findFirst();
 
         if (existingItem.isPresent()) {

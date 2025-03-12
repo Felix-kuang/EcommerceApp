@@ -19,7 +19,6 @@ import com.example.ecommerce.model.OrderStatus;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.repository.CartRepository;
 import com.example.ecommerce.repository.OrderRepository;
-import com.example.ecommerce.repository.ProductRepository;
 import com.example.ecommerce.repository.UserRepository;
 
 @Service
@@ -64,12 +63,12 @@ public class OrderService {
 
         order.setOrderDate(LocalDateTime.now()); // FIX: Isi `createdAt`
 
-        Order savedOrder = orderRepository.save(order); // FIX: Save ke DB dulu biar dapet `orderId`
+        orderRepository.save(order); 
 
         cart.getItems().clear();
         cartRepository.save(cart);
 
-        return convertToDTO(savedOrder);
+        return convertToDTO(order);
     }
 
     private OrderDTO convertToDTO(Order order) {

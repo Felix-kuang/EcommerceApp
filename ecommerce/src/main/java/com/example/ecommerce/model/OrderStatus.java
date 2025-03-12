@@ -1,5 +1,5 @@
 package com.example.ecommerce.model;
 
 public enum OrderStatus {
-    PENDING, PROCESSING, SHIPPED, DELIVERED, CANCELLED
+    PENDING, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED,PAYMENT_PENDING
 }
