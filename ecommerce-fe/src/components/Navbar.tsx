@@ -1,23 +1,34 @@
+"use client";
+
 import Link from "next/link";
+import { ShoppingCart, User} from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
   return (
-    <nav className="bg-white shadow-md p-4">
-      <div className="container mx-auto justify-between items-center">
-        <Link href="/" className="text-xl font-bold">
-          E-Commerce
+    <nav className="bg-white dark:bg-gray-900 shadow-md p-4 flex justify-between items-center mb-3">
+      {/* Logo */}
+      <Link href="/" className="text-xl font-bold text-gray-800 dark:text-white">
+        MyShop
+      </Link>
+      
+      {/* Search Bar Placeholder */}
+      <input
+        type="text"
+        placeholder="Search products..."
+        className="border p-2 rounded-md w-1/3 hidden md:block dark:bg-gray-800 dark:text-white"
+      />
+
+      {/* Icons */}
+      <div className="flex gap-4 items-center">
+        <Link href="/cart">
+          <ShoppingCart className="w-6 h-6 text-gray-700 dark:text-white" />
         </Link>
-        <div className="space-x-4">
-          <Link href="/cart" className="px-4 py-2 border rounded-lg">
-            Cart{" "}
-          </Link>
-          <Link
-            href="/login"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-          >
-            Login
-          </Link>
-        </div>
+        <Link href="/profile">
+          <User className="w-6 h-6 text-gray-700 dark:text-white" />
+        </Link>
       </div>
     </nav>
   );
