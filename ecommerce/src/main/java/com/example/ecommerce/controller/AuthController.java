@@ -5,13 +5,13 @@ import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.ecommerce.dto.AuthRequestDTO;
 import com.example.ecommerce.dto.LoginRequestDTO;
 import com.example.ecommerce.dto.UserResponseDTO;
 import com.example.ecommerce.exception.UserNotFoundException;
-import com.example.ecommerce.model.Role;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.security.JwtUtil;
 import com.example.ecommerce.service.UserService;
@@ -52,4 +52,16 @@ public class AuthController {
         return ResponseEntity.ok(Collections.singletonMap("token", token));
     }
 
+    @GetMapping("/profile")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<UserResponseDTO> getProfile(@RequestHeader("Authorization") String token) {
+        String username = jwtUtil.extractUsername(token.substring(7));
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException());
+        UserResponseDTO response = new UserResponseDTO(
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole().toString());
+        return ResponseEntity.ok(response);
+    }
 }

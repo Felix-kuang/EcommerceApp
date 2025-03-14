@@ -1,5 +1,7 @@
 package com.example.ecommerce.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,8 +18,15 @@ public class Product {
 
     @NonNull
     private String name;
+
     @NonNull
     private String description;
+
     @NonNull
     private Double price;
+
+    @NonNull
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 }

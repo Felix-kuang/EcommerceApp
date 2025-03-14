@@ -1,6 +1,7 @@
 package com.example.ecommerce.controller;
 
 import com.example.ecommerce.dto.CreateProductDTO;
+import com.example.ecommerce.dto.CreateProductResponseDTO;
 import com.example.ecommerce.dto.UpdateProductDTO;
 import com.example.ecommerce.model.Product;
 import com.example.ecommerce.service.ProductService;
@@ -8,11 +9,10 @@ import com.example.ecommerce.service.ProductService;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -22,8 +22,20 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+    public Page<Product> getAllProducts(
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        if (categoryId != null) {
+            return productService.getProductsByCategory(categoryId, pageable); // ✅ Filter by category if provided
+        }
+        return productService.getAllProducts(pageable); // ✅ Get all products if no category is provided
     }
 
     @GetMapping("/{id}")
@@ -32,13 +44,20 @@ public class ProductController {
         return product.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public Product createProduct(@RequestBody @Valid CreateProductDTO createProductDTO) {
-        return productService.createProduct(createProductDTO);
+    public ResponseEntity<CreateProductResponseDTO> createProduct(
+            @RequestBody @Valid CreateProductDTO createProductDTO) {
+        Product product = productService.createProduct(createProductDTO);
+        CreateProductResponseDTO response = new CreateProductResponseDTO(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getCategory().getName());
+
+        return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable Long id,
             @RequestBody @Valid UpdateProductDTO updateProductDTO) {
@@ -49,7 +68,6 @@ public class ProductController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);

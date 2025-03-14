@@ -12,4 +12,13 @@ public class SecurityUtil {
             return principal.toString();
         }
     }
+
+    public static String getLoggedInEmail() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        } else {
+            return principal.toString();
+        }
+    }
 }

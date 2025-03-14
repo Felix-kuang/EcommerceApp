@@ -18,4 +18,7 @@ public class CreateProductDTO {
     @NotNull
     @Positive
     private Double price;
+
+    @NotNull
+    private Long categoryId;
 }

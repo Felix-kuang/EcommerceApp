@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.example.ecommerce.dto.CreateProductDTO;
 import com.example.ecommerce.dto.UpdateProductDTO;
+import com.example.ecommerce.model.Category;
 import com.example.ecommerce.model.Product;
 import com.example.ecommerce.repository.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,42 +37,58 @@ class ProductControllerRBAC_Test {
     @WithMockUser(username = "admin", roles = { "ADMIN" })
     void adminShouldBeAbleToCreateProduct() throws Exception {
 
-        Product product = new Product();
-        product.setName("Product 1");
-        product.setDescription("Ini Produk 1");
-        product.setPrice(1000.0);
+        // Dummy category (assuming category ID 1 exists in DB)
+        Long categoryId = 1L;
+
+        CreateProductDTO productDTO = new CreateProductDTO();
+        productDTO.setName("Product 1");
+        productDTO.setDescription("Ini Produk 1");
+        productDTO.setPrice(1000.0);
+        productDTO.setCategoryId(categoryId); // ✅ Set category ID
 
         mockMvc.perform(post("/api/v1/products")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(product)))
+                .content(new ObjectMapper().writeValueAsString(productDTO)))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser(username = "admin", roles = { "ADMIN" })
     void adminShouldBeAbleToUpdateProduct() throws Exception {
-        // Buat produk dulu
+        // Dummy category (assuming category ID 1 exists in DB)
+        Long categoryId = 1L;
+
+        // Create a product first
         CreateProductDTO newProduct = new CreateProductDTO();
         newProduct.setName("Product Before Update");
         newProduct.setDescription("Old Desc");
         newProduct.setPrice(1500.0);
+        newProduct.setCategoryId(categoryId);
 
         String response = mockMvc.perform(post("/api/v1/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(newProduct)))
                 .andReturn().getResponse().getContentAsString();
 
-        // Ambil ID produk yang baru dibuat
+        System.out.println("CREATE RESPONSE: " + response); // ✅ Debug create response
+
+        // Extract product ID
         Long productId = objectMapper.readTree(response).get("id").asLong();
 
+        // Prepare updated product data
         UpdateProductDTO updateProductDTO = new UpdateProductDTO();
         updateProductDTO.setName("Product 1 Updated");
         updateProductDTO.setDescription("Ini Produk 1 Updated");
-        updateProductDTO.setPrice(1500.0);
+        updateProductDTO.setPrice(2000.0);
+        updateProductDTO.setCategoryId(2L);
 
-        mockMvc.perform(put("/api/v1/products/" + productId) // Ubah ID sesuai database
+        String updateJson = objectMapper.writeValueAsString(updateProductDTO);
+        System.out.println("UPDATE JSON: " + updateJson); // ✅ Debug update JSON
+
+        // Perform update request
+        mockMvc.perform(put("/api/v1/products/" + productId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateProductDTO)))
+                .content(updateJson))
                 .andExpect(status().isOk());
     }
 
@@ -124,6 +141,9 @@ class ProductControllerRBAC_Test {
         product.setName("Test Product");
         product.setDescription("Test Description");
         product.setPrice(1000.0);
+        Category category = new Category();
+        category.setId(1L);
+        product.setCategory(category);
         product = productRepository.save(product); // Simpen ke DB
 
         // Act & Assert - Coba get produknya
